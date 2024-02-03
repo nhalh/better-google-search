@@ -1,7 +1,13 @@
 {
-  "name": "Disable Google Search Video Player",
-  "description": "This extension will disable the popup player within Google when a Youtube video's thumbnail is selected.",
-  "version": "1.1",
+  "name": "Better Google Search",
+  "description": "Improvements made to Google's search results.",
+  "version": "1.0",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
   "manifest_version": 3,
   "content_scripts": [
     {

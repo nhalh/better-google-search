@@ -1,11 +1,14 @@
-# Disable Google Search Video Player
+# Better Google Search
 
-This extension will disable the embedded popup player within Google when a Youtube video's thumbnail is selected.
+This extension will allow you to remove certain annoyances with Google's current search results.
 
-This works by replacing every embedded link to the original video's link.
+## Current available improvements
+- Remove the embedded popup player when a Youtube video is selected from the thumbnail
+- Remove Quora search results
 
 ## How to install
 - Download the .zip file from the releases section
 - Go to your Chrome extensions page (chrome://extensions/)
 - Enable 'Developer Mode'
 - Drag the .zip file directly onto the extensions page
+- Open the extension from the toolbar and check the feature you want to enable
