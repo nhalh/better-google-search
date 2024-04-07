@@ -5,6 +5,7 @@ This extension will allow you to remove certain annoyances with Google's current
 ## Current available improvements
 - Remove the embedded popup player when a Youtube video is selected from the thumbnail
 - Remove Quora search results
+- Amend "reddit" to your search with the click of a button
 
 ## How to install
 - Download the .zip file from the releases section
