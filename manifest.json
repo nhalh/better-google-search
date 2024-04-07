@@ -2,6 +2,16 @@
   "name": "Better Google Search",
   "description": "Improvements made to Google's search results.",
   "version": "1.2",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "Images/reddit.png"
+      ],
+      "matches": [
+        "*://*.google.com/*"
+      ]
+    }
+  ],
   "permissions": [
     "storage"
   ],
