@@ -1,38 +1,28 @@
 {
   "name": "Better Google Search",
-  "description": "Improvements made to Google's search results.",
-  "version": "1.3",
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "Images/reddit.png"
-      ],
-      "matches": [
-        "*://*.google.com/*"
-      ]
-    }
-  ],
-  "permissions": [
-    "storage"
-  ],
+  "description": "Enhancements for Google search results.",
+  "version": "1.4",
+  "manifest_version": 3,
+  "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html"
   },
-  "manifest_version": 3,
   "content_scripts": [
     {
-      "js": [
-        "Scripts/Main.js"
-      ],
-      "matches": [
-        "*://*.google.com/*"
-      ]
+      "matches": ["*://*.google.com/*"],
+      "js": ["scripts/main.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["images/reddit.png"],
+      "matches": ["*://*.google.com/*"]
     }
   ],
   "icons": {
-    "16": "Images/icon-16.png",
-    "32": "Images/icon-32.png",
-    "48": "Images/icon-48.png",
-    "128": "Images/icon-128.png"
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
   }
 }

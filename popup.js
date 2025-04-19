@@ -1,28 +1,24 @@
-document.addEventListener('DOMContentLoaded', function ()
-{
-    var quora = document.getElementById('quora');
-    var youtube = document.getElementById('youtube');
-    var reddit = document.getElementById('reddit');
+document.addEventListener("DOMContentLoaded", () => {
+  const quoraCheckbox = document.getElementById("quora");
+  const youtubeCheckbox = document.getElementById("youtube");
+  const redditCheckbox = document.getElementById("reddit");
 
-    chrome.storage.local.get(['quoraState', 'youtubeState', 'redditState'], function (result)
-    {
-        quora.checked = result.quoraState || false;
-        youtube.checked = result.youtubeState || false;
-        reddit.checked = result.redditState || false;
-    });
+  const featureKeys = ["quoraState", "youtubeState", "redditState"];
 
-    quora.addEventListener('change', function ()
-    {
-        chrome.storage.local.set({ 'quoraState': quora.checked });
-    });
+  // Initialize checkbox states
+  chrome.storage.local.get(featureKeys, (result) => {
+    quoraCheckbox.checked = result.quoraState || false;
+    youtubeCheckbox.checked = result.youtubeState || false;
+    redditCheckbox.checked = result.redditState || false;
+  });
 
-    youtube.addEventListener('change', function ()
-    {
-        chrome.storage.local.set({ 'youtubeState': youtube.checked });
-    });
-
-    reddit.addEventListener('change', function ()
-    {
-        chrome.storage.local.set({ 'redditState': reddit.checked });
-    });
+  // Save state on change
+  [quoraCheckbox, youtubeCheckbox, redditCheckbox].forEach(
+    (checkbox, index) => {
+      checkbox.addEventListener("change", () => {
+        const key = featureKeys[index];
+        chrome.storage.local.set({ [key]: checkbox.checked });
+      });
+    }
+  );
 });

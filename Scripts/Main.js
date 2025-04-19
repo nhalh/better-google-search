@@ -1,151 +1,147 @@
-let enableQuora = false;
-let enableYoutube = false;
-let enableReddit = false;
+(() => {
+  const featureStates = {
+    quora: false,
+    youtube: false,
+    reddit: false,
+  };
 
-chrome.storage.local.get(['quoraState', 'youtubeState', 'redditState'], function (result)
-{
-  enableQuora = result.quoraState || false;
-  enableYoutube = result.youtubeState || false;
-  enableReddit = result.redditState || false;
-  setFeatures(); // Run with initial state
-});
+  const featureFunctions = {
+    quora: removeQuoraResults,
+    youtube: disableYoutubePopup,
+    reddit: addRedditSearchButton,
+  };
 
-chrome.storage.onChanged.addListener(function (changes, namespace)
-{
-  for (let [key, { oldValue, newValue }] of Object.entries(changes))
-  {
-    if (key === 'quoraState')
-    {
-      enableQuora = newValue;
-      console.log("Quora is " + (enableQuora ? "enabled" : "disabled"));
+  // Initialize feature states
+  chrome.storage.local.get(
+    ["quoraState", "youtubeState", "redditState"],
+    (result) => {
+      featureStates.quora = result.quoraState || false;
+      featureStates.youtube = result.youtubeState || false;
+      featureStates.reddit = result.redditState || false;
+      applyFeatures();
     }
-    if (key === 'youtubeState')
-    {
-      enableYoutube = newValue;
-      console.log("YouTube is " + (enableYoutube ? "enabled" : "disabled"));
-    }
-    if (key === 'redditState')
-    {
-      enableReddit = newValue;
-      console.log("Reddit is " + (enableReddit ? "enabled" : "disabled"));
-    }
-  }
-  setFeatures();
-});
+  );
 
-// Enable features
-function setFeatures()
-{
-  if (enableQuora)
-  {
-    runQuora();
-  }
-  if (enableYoutube)
-  {
-    runYoutube()
-  }
-  if (enableReddit)
-  {
-    runReddit()
-  }
-}
-
-// Run features
-function runQuora()
-{
-  if (document.querySelector('.YmvwI[selected]').textContent == 'All')
-  {
-    let results = document.querySelectorAll('span');
-
-    results.forEach(result =>
-    {
-      if (result.textContent === 'Quora')
-      {
-        let grandparent = result.closest('.MjjYud');
-        if (grandparent) grandparent.remove();
+  // Listen for changes in feature states
+  chrome.storage.onChanged.addListener((changes) => {
+    let shouldReapply = false;
+    for (const [key, { newValue }] of Object.entries(changes)) {
+      const featureKey = key.replace("State", "");
+      if (featureKey in featureStates) {
+        featureStates[featureKey] = newValue;
+        shouldReapply = true;
       }
-    })
-  }
-}
-
-function runYoutube()
-{
-  let links = document.querySelectorAll('a[data-ved]');
-  links.forEach(link =>
-  {
-    let closestElementWithDataSurl = link.closest('[data-surl]');
-
-    if (closestElementWithDataSurl)
-    {
-      let dataSurl = closestElementWithDataSurl.getAttribute('data-surl');
-      if (dataSurl && dataSurl.includes('youtube.com'))
-      {
-        link.removeAttribute('data-ved');
-        link.href = dataSurl;
-      }
+    }
+    if (shouldReapply) {
+      applyFeatures();
     }
   });
-}
 
-function runReddit()
-{
-  // Get original search button
-  const originalSearchButton = document.querySelector('button.Tg7LZd');
-
-  // Clone search button
-  const clonedSearchButton = originalSearchButton.cloneNode(true);
-
-  // Remove cloned searched button's icon
-  const oldIcon = clonedSearchButton.querySelector('svg');
-  if (oldIcon)
-  {
-    oldIcon.parentNode.removeChild(oldIcon);
+  function applyFeatures() {
+    if (featureStates.quora) removeQuoraResults();
+    if (featureStates.youtube) disableYoutubePopup();
+    if (featureStates.reddit) addRedditSearchButton();
   }
 
-  // Add Reddit icon to the cloned searched button
-  const redditIco = document.createElement('img');
-  redditIco.src = chrome.runtime.getURL('Images/reddit.png');
-  redditIco.style.width = '24px';
-  redditIco.style.height = '24px';
+  // Remove Quora results from search
+  function removeQuoraResults() {
+    if (document.querySelector(".YmvwI[selected]").textContent == "All") {
+      // Limit to only Web results page
+      if (document.querySelector("block-component") != null) {
+        // If highlighted result is a Quora result
+        if (
+          document.querySelector("block-component").innerText.includes("quora")
+        )
+          document.querySelector("block-component").remove();
+      }
 
-  // Append to a span element
-  const spanElement = clonedSearchButton.querySelector('.z1asCe.MZy1Rb');
-  if (spanElement)
-  {
-    spanElement.appendChild(redditIco);
-  } else
-  {
-    // If the span does not exist, append the icon directly to the button
-    clonedSearchButton.appendChild(redditIco);
-  }
-
-  // Append " reddit" and search when clicked
-  clonedSearchButton.addEventListener('click', () =>
-  {
-    document.querySelector('textarea.gLFyf[aria-label="Search"][aria-owns="Alh6id"]').value = document.querySelector('textarea.gLFyf[aria-label="Search"][aria-owns="Alh6id"]').value + ' reddit'
-
-  }, true)
-
-  // Append to parent container and align it next to the search button
-  originalSearchButton.parentNode.insertBefore(clonedSearchButton, originalSearchButton.nextSibling);
-
-}
-
-
-const observer = new MutationObserver((mutationsList) =>
-{
-  for (let mutation of mutationsList)
-  {
-    if (mutation.type === 'childList')
-    {
-      runYoutube();
-      runQuora();
+      const searchResults = document.querySelectorAll(".MjjYud");
+      searchResults.forEach((result) => {
+        if (result.textContent.includes("Quora")) {
+          result.remove();
+        }
+      });
     }
   }
-});
 
-const targetNode = document.getElementById("center_col");
-if (targetNode)
-{
-  observer.observe(targetNode, { childList: true, subtree: true });
-}
+  // Disable YouTube popup video player
+  function disableYoutubePopup() {
+    const links = document.querySelectorAll("a[data-ved]");
+    links.forEach((link) => {
+      const parent = link.closest("[data-surl]");
+      if (parent) {
+        const dataSurl = parent.getAttribute("data-surl");
+        if (dataSurl && dataSurl.includes("youtube.com")) {
+          link.removeAttribute("data-ved");
+          link.href = dataSurl;
+        }
+      }
+    });
+  }
+
+  // Add Reddit search button
+  function addRedditSearchButton() {
+    if (sessionStorage.getItem("removeRedditSiteFromSearchInput") === "true") {
+      console.log("session exists");
+      const searchInput = document.querySelector('textarea[name="q"]');
+
+      if (searchInput && searchInput.value.includes(" reddit")) {
+        console.log("string exists");
+        searchInput.value = searchInput.value.replace(" reddit", "");
+      }
+      sessionStorage.removeItem("removeRedditSiteFromSearchInput");
+    }
+
+    // Prevent adding multiple buttons
+    if (document.getElementById("reddit-search-button")) return;
+
+    // Get original search button
+    const originalButton = document.querySelector("button.Tg7LZd");
+    if (!originalButton) return;
+
+    const redditButton = originalButton.cloneNode(true);
+    redditButton.id = "reddit-search-button";
+
+    // Replace icon with Reddit icon
+    const iconContainer = redditButton.querySelector(".z1asCe.MZy1Rb");
+    if (iconContainer) {
+      iconContainer.innerHTML = "";
+      const redditIcon = document.createElement("img");
+      redditIcon.src = chrome.runtime.getURL("images/reddit.png");
+      redditIcon.style.width = "24px";
+      redditIcon.style.height = "24px";
+      iconContainer.appendChild(redditIcon);
+    }
+
+    // Append Reddit to search query on click event
+    redditButton.addEventListener("click", () => {
+      const searchInput = document.querySelector('textarea[name="q"]');
+      if (searchInput) {
+        searchInput.value += " reddit";
+
+        // Set a flag to remove 'site:reddit.com' after the page loads
+        sessionStorage.setItem("removeRedditSiteFromSearchInput", "true");
+      }
+    });
+
+    // Insert Reddit button after the original search button
+    originalButton.parentNode.insertBefore(
+      redditButton,
+      originalButton.nextSibling
+    );
+  }
+
+  // Observe changes in search results
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach(() => {
+      if (featureStates.quora) removeQuoraResults();
+      if (featureStates.youtube) disableYoutubePopup();
+    });
+  });
+
+  const targetNode = document.getElementById("search");
+  // search = Page search results
+  if (targetNode) {
+    observer.observe(targetNode, { childList: true, subtree: true });
+  }
+})();

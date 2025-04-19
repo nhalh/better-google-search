@@ -1,25 +1,45 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Better Google Search Settings</title>
+    <style>
+      body {
+        min-width: 200px;
+        font-family: Arial, sans-serif;
+        margin: 10px;
+      }
 
-<head>
-    <Title>Make Google Search Great Again</Title>
-</head>
+      label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
 
-<body style="min-width: 200;">
-    <div>
-        <div>
-            <input type="checkbox" id="quora">
-            <text style="font-weight: bold; font-size: small;">Remove Quora results</text>
-        </div>
-        <div>
-            <input type="checkbox" id="youtube">
-            <text style="font-weight: bold; font-size: small;">Disable popup video player</text>
-        </div>
-        <div>
-            <input type="checkbox" id="reddit">
-            <text style="font-weight: bold; font-size: small;">Search on Reddit</text>
-        </div>
-    </div>
-</body>
-<script src="popup.js"></script>
+      input[type="checkbox"] {
+        margin-right: 8px;
+      }
 
+      span {
+        font-weight: bold;
+        font-size: small;
+      }
+    </style>
+  </head>
+
+  <body>
+    <label>
+      <input type="checkbox" id="quora" />
+      <span>Remove Quora results</span>
+    </label>
+    <label>
+      <input type="checkbox" id="youtube" />
+      <span>Disable popup video player</span>
+    </label>
+    <label>
+      <input type="checkbox" id="reddit" />
+      <span>Search on Reddit</span>
+    </label>
+    <script src="popup.js"></script>
+  </body>
 </html>
